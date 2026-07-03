@@ -70,11 +70,19 @@ export default function App() {
           <EscrowCard wallet={wallet} splits={splits} />
         </div>
 
-        <SplitList splits={splits} loading={loading} />
+        <div className="list-head">
+          <SplitList splits={splits} loading={loading} />
+          <button className="ghost" onClick={refresh} disabled={loading}>
+            {loading ? "Refreshing…" : "Refresh"}
+          </button>
+        </div>
       </main>
 
       <footer>
         <span>Apache-2.0</span>
+        <a href="https://stellar.expert/explorer/testnet/contract/CDRW277JGRE32EADYKFXOMQILFEAWRTQ5PK62M4HOHB4LQA4BUQWPLX5">
+          Contract on testnet
+        </a>
         <a href="https://github.com/tributary-protocol/tributary">
           tributary-protocol/tributary
         </a>
