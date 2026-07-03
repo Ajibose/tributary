@@ -86,6 +86,34 @@ fn rejects_invalid_splits() {
 }
 
 #[test]
+fn tracks_splits_by_creator() {
+    let s = setup();
+    let creator = Address::generate(&s.env);
+    let other = Address::generate(&s.env);
+    let a = Address::generate(&s.env);
+
+    s.client.create_split(
+        &creator,
+        &vec![&s.env, a.clone()],
+        &vec![&s.env, 10_000],
+        &None,
+    );
+    s.client.create_split(
+        &other,
+        &vec![&s.env, a.clone()],
+        &vec![&s.env, 10_000],
+        &None,
+    );
+    s.client
+        .create_split(&creator, &vec![&s.env, a], &vec![&s.env, 10_000], &None);
+
+    assert_eq!(s.client.splits_of(&creator), vec![&s.env, 0, 2]);
+    assert_eq!(s.client.splits_of(&other), vec![&s.env, 1]);
+    let stranger = Address::generate(&s.env);
+    assert_eq!(s.client.splits_of(&stranger), vec![&s.env]);
+}
+
+#[test]
 fn rejects_too_many_recipients() {
     let s = setup();
     let creator = Address::generate(&s.env);

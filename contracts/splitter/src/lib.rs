@@ -36,6 +36,7 @@ enum DataKey {
     Count,
     Split(u64),
     Balance(u64, Address),
+    Created(Address),
 }
 
 #[contractevent]
@@ -114,6 +115,16 @@ impl Splitter {
         };
         env.storage().persistent().set(&DataKey::Split(id), &split);
         env.storage().instance().set(&DataKey::Count, &(id + 1));
+
+        let index_key = DataKey::Created(creator.clone());
+        let mut created: Vec<u64> = env
+            .storage()
+            .persistent()
+            .get(&index_key)
+            .unwrap_or_else(|| Vec::new(&env));
+        created.push_back(id);
+        env.storage().persistent().set(&index_key, &created);
+
         SplitCreated { id, creator }.publish(&env);
         Ok(id)
     }
@@ -225,6 +236,13 @@ impl Splitter {
 
     pub fn get_split(env: Env, id: u64) -> Result<Split, Error> {
         load(&env, id)
+    }
+
+    pub fn splits_of(env: Env, creator: Address) -> Vec<u64> {
+        env.storage()
+            .persistent()
+            .get(&DataKey::Created(creator))
+            .unwrap_or_else(|| Vec::new(&env))
     }
 
     pub fn split_count(env: Env) -> u64 {
