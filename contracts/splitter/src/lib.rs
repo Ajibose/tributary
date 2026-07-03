@@ -6,7 +6,10 @@ use soroban_sdk::{
 };
 
 contractmeta!(key = "name", val = "tributary-splitter");
-contractmeta!(key = "source", val = "https://github.com/tributary-protocol/tributary");
+contractmeta!(
+    key = "source",
+    val = "https://github.com/tributary-protocol/tributary"
+);
 
 pub const TOTAL_SHARES: u32 = 10_000;
 pub const MAX_RECIPIENTS: u32 = 32;
