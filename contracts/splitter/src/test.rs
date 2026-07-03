@@ -294,6 +294,71 @@ fn conservation_holds_across_share_mixes() {
 }
 
 #[test]
+fn nested_portions_credit_the_child_split() {
+    let s = setup();
+    let creator = Address::generate(&s.env);
+    let leaf_a = Address::generate(&s.env);
+    let leaf_b = Address::generate(&s.env);
+    let direct = Address::generate(&s.env);
+    let payer = Address::generate(&s.env);
+    let (token_id, token_client) = fund_token(&s.env, &payer, 10_000);
+
+    let child = s.client.create_split(
+        &creator,
+        &vec![&s.env, acct(&leaf_a), acct(&leaf_b)],
+        &vec![&s.env, 5_000, 5_000],
+        &None,
+    );
+    let parent = s.client.create_split(
+        &creator,
+        &vec![&s.env, acct(&direct), Recipient::Split(child)],
+        &vec![&s.env, 6_000, 4_000],
+        &None,
+    );
+
+    s.client.pay(&payer, &parent, &token_id, &1_000);
+
+    assert_eq!(token_client.balance(&direct), 600);
+    assert_eq!(s.client.balance(&child, &token_id), 400);
+    assert_eq!(token_client.balance(&s.client.address), 400);
+
+    s.client.distribute(&child, &token_id);
+    assert_eq!(token_client.balance(&leaf_a), 200);
+    assert_eq!(token_client.balance(&leaf_b), 200);
+    assert_eq!(token_client.balance(&s.client.address), 0);
+}
+
+#[test]
+fn rejects_missing_or_self_referencing_children() {
+    let s = setup();
+    let creator = Address::generate(&s.env);
+    let controller = Address::generate(&s.env);
+    let a = Address::generate(&s.env);
+
+    let unknown_child = s.client.try_create_split(
+        &creator,
+        &vec![&s.env, acct(&a), Recipient::Split(7)],
+        &vec![&s.env, 5_000, 5_000],
+        &None,
+    );
+    assert_eq!(unknown_child, Err(Ok(Error::BadChildSplit)));
+
+    let id = s.client.create_split(
+        &creator,
+        &vec![&s.env, acct(&a)],
+        &vec![&s.env, 10_000],
+        &Some(controller),
+    );
+
+    let self_reference = s.client.try_update_split(
+        &id,
+        &vec![&s.env, acct(&a), Recipient::Split(id)],
+        &vec![&s.env, 5_000, 5_000],
+    );
+    assert_eq!(self_reference, Err(Ok(Error::BadChildSplit)));
+}
+
+#[test]
 fn pay_unknown_split_fails() {
     let s = setup();
     let payer = Address::generate(&s.env);
