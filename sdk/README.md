@@ -1,0 +1,52 @@
+# tributary-sdk
+
+TypeScript client for the Tributary splitter contract, generated from the on-chain contract spec with `stellar contract bindings typescript` and built on `@stellar/stellar-sdk`.
+
+The client is pre-wired to the testnet deployment. Point it at another network by passing your own `contractId` and `rpcUrl`.
+
+## Install
+
+The package is not on npm yet. Use it from the repo:
+
+```
+cd sdk
+npm install
+npm run build
+```
+
+## Usage
+
+```ts
+import { Client, networks } from "tributary-sdk";
+
+const client = new Client({
+  ...networks.testnet,
+  rpcUrl: "https://soroban-testnet.stellar.org",
+});
+
+// read a split
+const { result } = await client.get_split({ id: 0n });
+
+// build a create_split transaction, then sign and send it
+// with the wallet of your choice
+const tx = await client.create_split({
+  creator: "G...",
+  recipients: ["G...", "G..."],
+  shares: [6000, 4000],
+  controller: undefined,
+});
+await tx.signAndSend({ signTransaction });
+```
+
+`pay`, `deposit`, `distribute`, `balance`, `update_split` and `split_count` follow the same shape. See `src/index.ts` for the full typed API.
+
+## Regenerating
+
+After the contract changes and is redeployed:
+
+```
+stellar contract bindings typescript \
+  --contract-id <new id> --network testnet --output-dir sdk --overwrite
+```
+
+Then restore this readme and the package name in package.json.
