@@ -33,7 +33,13 @@ The splitter contract keeps a registry of splits. Each split holds:
 
 ## Status
 
-Early days. The core contract works and is tested, but it is not deployed or audited yet. Testnet deployment is next. Do not put serious money through this yet.
+Early days. The core contract works, is tested and runs on testnet, but it is not audited. Do not put serious money through this yet.
+
+## Deployments
+
+| Network | Contract |
+| --- | --- |
+| Testnet | `CBRSC5MQ7QJ355VHWJLVWTXKIJBG5ZJCI75KZTPT3K5HIGGTZCIBIZCK` |
 
 ## Development
 
