@@ -283,6 +283,30 @@ select.kind {
   color: var(--muted);
 }
 
+.split {
+  cursor: pointer;
+}
+
+.detail {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--muted);
+  padding: 2px 0;
+}
+
+.mono {
+  font-family: ui-monospace, Consolas, monospace;
+  overflow-wrap: anywhere;
+}
+
 .activity {
   margin-top: 36px;
 }
