@@ -2,7 +2,7 @@
 
 # Tributary
 
-Payment splitting on Stellar.
+Payment splitting on Stellar. Live at [tributary-omega.vercel.app](https://tributary-omega.vercel.app).
 
 A split is a routing rule stored on-chain: a list of recipient addresses and the share each one gets. Once a split exists, anyone can push a payment through it and every recipient gets paid in the same transaction.
 
@@ -64,8 +64,8 @@ cargo build --release --target wasm32v1-none -p tributary-splitter
 
 ```
 contracts/splitter   core splitting contract
-sdk                  TypeScript client (planned)
-app                  web dashboard (planned)
+sdk                  TypeScript client generated from the contract spec
+app                  web dashboard (Vite + React, Freighter wallet)
 ```
 
 ## Roadmap
