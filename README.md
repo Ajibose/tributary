@@ -21,12 +21,14 @@ The splitter contract keeps a registry of splits. Each split holds:
 - `shares`: basis points per recipient, always summing to 10,000
 - `controller`: optional. If set, that address can change the recipients and shares later. If left empty, the split is locked forever.
 
+A recipient is either an account address or another split. When a payment reaches a split recipient, that portion is credited to the child split as escrow, and anyone can distribute it onward. This lets you compose routing trees: a project split that feeds team splits, a marketplace split that feeds a referrer pool.
+
 There are two ways money moves through a split:
 
 - `pay` moves an amount of any Stellar asset from the payer straight to all recipients in a single call.
 - `deposit` parks funds inside the contract, credited to the split. Anyone can later call `distribute` to pay the whole credited balance out to the recipients. This fits cases where money arrives over time and payouts happen on a schedule.
 
-Per-recipient amounts are rounded down and the leftover dust goes to the last recipient, so the full amount always lands somewhere.
+Per-recipient amounts are rounded down and the leftover dust goes to the last recipient, so the full amount always lands somewhere. `preview_payout` returns the exact cut per recipient before you send anything.
 
 ## Contract API
 
@@ -36,6 +38,7 @@ Per-recipient amounts are rounded down and the leftover dust goes to the last re
 | `pay(from, id, token, amount)` | Splits a payment across all recipients |
 | `deposit(from, id, token, amount)` | Credits funds to the split without paying out |
 | `distribute(id, token)` | Pays the credited balance out to all recipients |
+| `preview_payout(id, amount)` | Per-recipient amounts a payment would produce |
 | `balance(id, token)` | Credited amount waiting to be distributed |
 | `update_split(id, recipients, shares)` | Controller only. Replaces the routing table |
 | `transfer_control(id, new_controller)` | Controller only. Hands over control, or locks the split with None |
@@ -51,7 +54,7 @@ Early days. The core contract works, is tested and runs on testnet, but it is no
 
 | Network | Contract |
 | --- | --- |
-| Testnet | `CDRW277JGRE32EADYKFXOMQILFEAWRTQ5PK62M4HOHB4LQA4BUQWPLX5` |
+| Testnet | `CD72QCORFZPWSIHYBPMFJ42MGMESYZ2X5NXIMUT2RAC7TVXUJVVVAFFL` |
 
 ## Development
 
@@ -72,10 +75,10 @@ app                  web dashboard (Vite + React, Freighter wallet)
 
 ## Roadmap
 
-- Nested splits, where a recipient is itself another split
-- TypeScript SDK
-- Web dashboard to create and inspect splits
-- Testnet deployment, then mainnet
+- Payout history in the dashboard, fed by contract events
+- Controller tools in the dashboard: edit, transfer, lock
+- Publish the sdk to npm
+- Security review, then mainnet
 
 ## Docs
 
