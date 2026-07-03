@@ -287,20 +287,29 @@ fn validate(recipients: &Vec<Address>, shares: &Vec<u32>) -> Result<(), Error> {
     Ok(())
 }
 
-fn payout(env: &Env, split: &Split, from: &Address, token: &Address, amount: i128) {
-    let client = token::Client::new(env, token);
+fn amounts(env: &Env, split: &Split, amount: i128) -> Vec<i128> {
+    let mut out = Vec::new(env);
     let last = split.recipients.len() - 1;
-    let mut paid: i128 = 0;
+    let mut assigned: i128 = 0;
     for i in 0..split.recipients.len() {
-        let recipient = split.recipients.get_unchecked(i);
         let part = if i == last {
-            amount - paid
+            amount - assigned
         } else {
             amount * split.shares.get_unchecked(i) as i128 / TOTAL_SHARES as i128
         };
+        out.push_back(part);
+        assigned += part;
+    }
+    out
+}
+
+fn payout(env: &Env, split: &Split, from: &Address, token: &Address, amount: i128) {
+    let client = token::Client::new(env, token);
+    let parts = amounts(env, split, amount);
+    for i in 0..split.recipients.len() {
+        let part = parts.get_unchecked(i);
         if part > 0 {
-            client.transfer(from, &recipient, &part);
-            paid += part;
+            client.transfer(from, &split.recipients.get_unchecked(i), &part);
         }
     }
 }
