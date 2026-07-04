@@ -365,6 +365,25 @@ h2 {
   padding: 2px 8px;
 }
 
+.badge.net {
+  margin-left: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 10px;
+}
+
+.empty {
+  border: 1px dashed var(--line);
+  border-radius: 14px;
+  padding: 28px 24px;
+  text-align: center;
+}
+
+.empty .note {
+  max-width: 44ch;
+  margin: 6px auto 0;
+}
+
 .badge.own {
   color: var(--accent);
   border-color: var(--accent);

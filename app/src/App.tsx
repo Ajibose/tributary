@@ -78,6 +78,7 @@ export default function App() {
         <div className="brand">
           <img src="/logo.svg" alt="" width="34" height="34" />
           <span>Tributary</span>
+          <span className="badge net">Testnet</span>
         </div>
         <nav>
           <a href="https://github.com/tributary-protocol/tributary">GitHub</a>
