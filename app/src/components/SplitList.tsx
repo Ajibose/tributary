@@ -76,7 +76,18 @@ export default function SplitList({
   const [open, setOpen] = useState<string | null>(null);
 
   if (loading) return <p className="note">Loading splits…</p>;
-  if (splits.length === 0) return <p className="note">No splits yet.</p>;
+  if (splits.length === 0) {
+    return (
+      <div className="empty">
+        <p>No splits on this contract yet.</p>
+        <p className="note">
+          Connect Freighter on testnet, open the Create tab and register the
+          first one. Testnet XLM is free from friendbot, so it costs nothing to
+          try.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <section>
