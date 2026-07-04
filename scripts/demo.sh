@@ -22,6 +22,10 @@ stellar contract invoke --id splitter --source "$source" --network testnet -- \
   pay --from "$payer" --id "$id" --token "$xlm" --amount 10000000 >/dev/null
 echo "paid 1 XLM through split $id"
 
+stellar contract invoke --id splitter --source "$source" --network testnet -- \
+  pay_many --from "$payer" --ids "[$id]" --amounts "[\"5000000\"]" --token "$xlm" >/dev/null
+echo "paid 0.5 XLM through split $id via pay_many"
+
 for who in "$a" "$b"; do
   bal=$(stellar contract invoke --id "$xlm" --source "$source" --network testnet -- \
     balance --id "$who" 2>/dev/null | tr -d '"')
