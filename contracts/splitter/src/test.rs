@@ -767,6 +767,91 @@ fn held_tokens_tracking() {
     assert_eq!(s.client.held_tokens(&id), vec![&s.env]);
 }
 
+#[test]
+fn close_split_reclaims_storage() {
+    let s = setup();
+    let creator = Address::generate(&s.env);
+    let controller = Address::generate(&s.env);
+    let a = Address::generate(&s.env);
+
+    let id = s.client.create_split(
+        &creator,
+        &vec![&s.env, acct(&a)],
+        &vec![&s.env, 10_000],
+        &Some(controller.clone()),
+    );
+
+    s.client.close_split(&id);
+    assert_eq!(s.client.try_get_split(&id), Err(Ok(Error::SplitNotFound)));
+}
+
+#[test]
+fn close_split_rejects_if_balance_remains() {
+    let s = setup();
+    let creator = Address::generate(&s.env);
+    let controller = Address::generate(&s.env);
+    let a = Address::generate(&s.env);
+    let payer = Address::generate(&s.env);
+    let (token_id, _) = fund_token(&s.env, &payer, 1_000);
+
+    let id = s.client.create_split(
+        &creator,
+        &vec![&s.env, acct(&a)],
+        &vec![&s.env, 10_000],
+        &Some(controller.clone()),
+    );
+
+    s.client.deposit(&payer, &id, &token_id, &100);
+
+    let result = s.client.try_close_split(&id);
+    assert_eq!(result, Err(Ok(Error::SplitHasBalance)));
+
+    // After distribute, it can be closed
+    s.client.distribute(&id, &token_id);
+    s.client.close_split(&id);
+    assert_eq!(s.client.try_get_split(&id), Err(Ok(Error::SplitNotFound)));
+}
+
+#[test]
+fn close_split_requires_auth() {
+    let s = setup();
+    let creator = Address::generate(&s.env);
+    let controller = Address::generate(&s.env);
+    let a = Address::generate(&s.env);
+
+    let id = s.client.create_split(
+        &creator,
+        &vec![&s.env, acct(&a)],
+        &vec![&s.env, 10_000],
+        &Some(controller.clone()),
+    );
+
+    s.env.set_auths(&[]);
+    let result = s.env.try_invoke_contract::<(), Error>(
+        &s.client.address,
+        &soroban_sdk::Symbol::new(&s.env, "close_split"),
+        (&id,).into_val(&s.env),
+    );
+    assert!(result.is_err());
+}
+
+#[test]
+fn close_split_rejects_immutable_split() {
+    let s = setup();
+    let creator = Address::generate(&s.env);
+    let a = Address::generate(&s.env);
+
+    let id = s.client.create_split(
+        &creator,
+        &vec![&s.env, acct(&a)],
+        &vec![&s.env, 10_000],
+        &None,
+    );
+
+    let result = s.client.try_close_split(&id);
+    assert_eq!(result, Err(Ok(Error::SplitImmutable)));
+}
+
 mod fee_token {
     //! A minimal token that keeps a cut of every transfer, standing in for
     //! real-world fee-on-transfer tokens so `deposit` can be tested against
