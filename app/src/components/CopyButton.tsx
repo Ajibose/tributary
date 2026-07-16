@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, ReactNode, MouseEvent } from 'react';
 
 interface CopyButtonProps {
   /** Text to copy to the clipboard */
@@ -6,24 +6,24 @@ interface CopyButtonProps {
   /** Optional class name for styling */
   className?: string;
   /** Children to render inside the button */
-  children?: React.ReactNode;
+  children?: ReactNode;
 }
 
 /**
  * A simple copy‑to‑clipboard button with feedback.
  * It uses the modern Clipboard API (`navigator.clipboard.writeText`).
- * When the copy succeeds the button shows a temporary "Copied!" label
- * (or you can customise via children). After a short timeout the label
- * reverts to the original content.
+ * When the copy succeeds the button shows a temporary "Copied!" label.
+ * After a short timeout the label reverts to the original content.
  */
-export const CopyButton: React.FC<CopyButtonProps> = ({
+export const CopyButton = ({
   text,
   className = '',
   children,
-}) => {
+}: CopyButtonProps) => {
   const [copied, setCopied] = useState(false);
 
-  const handleCopy = async () => {
+  const handleCopy = async (e: MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation(); // Avoid triggering details toggle in parent elements
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);

@@ -123,17 +123,19 @@ export default function SplitList({
                 {s.recipients.map((r, i) => (
                   <li key={i}>
                     {r.tag === "Account" ? (
-                      <a
-                        href={`${EXPLORER}/account/${r.values[0]}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        {recipientLabel(r)}
-                      </a>
-                      <CopyButton text={r.values[0]}>
-                        Copy
-                      </CopyButton>
+                      <>
+                        <a
+                          href={`${EXPLORER}/account/${r.values[0]}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          {recipientLabel(r)}
+                        </a>
+                        <CopyButton text={r.values[0]}>
+                          Copy
+                        </CopyButton>
+                      </>
                     ) : (
                       <span className="nested">{recipientLabel(r)}</span>
                     )}
