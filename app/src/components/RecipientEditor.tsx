@@ -12,7 +12,7 @@ export function rowsTotal(rows: Row[]): number {
 
 export function rowsError(
   rows: Row[],
-  t?: (key: string, args?: Record<string, unknown>) => string,
+  t?: (key: string, variables?: Record<string, string | number>) => string,
 ): string | null {
   if (Math.abs(rowsTotal(rows) - 100) > 0.001) {
     return t ? t("shareTotalError") : "Shares must add up to 100%.";
