@@ -57,6 +57,28 @@ Escrow: `deposit(from, id, token, amount)` moves funds into the contract and cre
 
 Both paths round each recipient's amount down and give the leftover to the last recipient, so the amount in always equals the amount out.
 
+### Maximum safe payment amount
+
+Share math is `amount * share / 10_000`, computed in 256-bit space
+(`I256`) since the i128-overflow fix (#42, PR #196). The final slice
+is always `<= amount` because every `share <= 10_000`, so the result fits
+back into `i128` and never panics or wraps.
+
+The only overflow risk is the **intermediate product** `amount * share`. Given
+the largest `share` in a split, the largest fully-safe `amount` is:
+
+```
+max_safe_amount = floor(i128::MAX / largest_share)
+```
+
+For a single-recipient split (`largest_share = 10_000`) that is
+`i128::MAX / 10_000`. Payers are not blocked above this — the contract
+computes in 256-bit and only the last recipient's dust can approach `i128`
+on division — but `max_safe_amount` is the documented, test-pinned ceiling
+for which every recipient slice is exact and conservation holds with no wrap.
+
+### Errors
+
 ### Errors
 
 The `Error` enum is `#[contracterror]` with `#[repr(u32)]`, so each variant
